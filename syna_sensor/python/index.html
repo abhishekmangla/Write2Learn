@@ -1,0 +1,200 @@
+<html>
+  <head>
+    <title>Synaptics Sensor Letter Recognition</title>
+  </head>
+  <body>
+    <script src="jquery-1.11.3.js"></script>
+    <script>
+      baseline = [];
+      rezero = true;
+      go = true;
+      frameCount = -1;
+      lastSequence = -1;
+      lastTs = -1;
+      var holdTouches = [];
+
+      function updateFrameRate(ts, seq) {
+        if (lastSequence < 0) {
+          lastSequence = seq;
+          lastTs = ts;
+          frameCount = 0;
+        }
+        frameCount++;
+        diff = ts - lastTs;
+        if (diff < 0) {
+          diff += Math.pow(2,32);
+        }
+        if (diff > 1e6) {
+          framesPerSec = frameCount / (diff / 1e6);
+          $("#framesPerSec").text(framesPerSec + " frames/sec");
+          lastSequence = seq;
+          lastTs = ts;
+          frameCount = 0;
+        }
+      }
+
+      function updateCanvas(img, rows, cols) {
+        if (rezero) {
+          rezero = false;
+          for (i = 0; i < rows; i++) {
+            baseline[i] = [];
+            for (j = 0; j < cols; j++) {
+              baseline[i][j] = img[i][j];
+            }
+          }
+        } else {
+          for (i = 0; i < rows; i++) {
+            for (j = 0; j < cols; j++) {
+              img[i][j] = baseline[i][j] - img[i][j];
+            }
+          }
+        }
+        max = 0; min = 4095;
+        threshold = 10;
+        rowIndex = 0; columnIndex = 0;
+        arbitraryTouchConstant = 6;
+        var touches = [];
+        for (i = 0; i < rows; i++) {
+          for (j = 0; j < cols; j++) {
+            v = img[i][j];
+            if (v > threshold) {
+              rowIndex = i;
+              columnIndex = j;
+              var touch = [rowIndex, columnIndex];
+              if (touches.length == 0 || (rowIndex > touches[touches.length-1][0] + arbitraryTouchConstant) || (columnIndex > touches[touches.length-1][1] + arbitraryTouchConstant)) {
+                touches.push(touch);
+              }
+              else {
+
+              }
+            }
+            if (v > max) {
+              max = v;
+            }
+            if (v < min) {
+              min = v;
+            }
+          }
+        }
+        function maxer(holdTouchesArray, z) {
+          max = 0;
+          for (i = 0; i<holdTouchesArray.length; i++) {
+            //console.log(holdTouchesArray[i][z]);
+            if (holdTouchesArray[i][z] > max) {
+              max = holdTouchesArray[i][z];
+            }
+          }
+          return max;
+        }
+
+        function minimizer(holdTouchesArray, z) {
+          min = 10000;
+          for (i = 0; i<holdTouchesArray.length; i++) {
+            //console.log(holdTouchesArray[i][z]);
+            if (holdTouchesArray[i][z] < min) {
+              min = holdTouchesArray[i][z];
+            }
+          }
+          return min;
+        }
+
+        //console.log("max: " + max);
+        if (touches.length > 0) {
+          //console.log(touches.toString());
+          //console.log("number of touches: " + touches.length);
+          holdTouches.push(touches[0]);
+          touches = [];
+            //console.log("touch " + touches.length + " happening here: " + rowIndex + ", " + columnIndex + ", " + max);
+        }
+        else if (touches.length == 0 && holdTouches.length > 1) {
+          console.log("TESTING HOLDTOUCHES!!");
+          // console.log("number of touches in gesture: " + holdTouches.length);
+          xMax = maxer(holdTouches, 0);
+          xMin = minimizer(holdTouches, 0);
+          yMax = maxer(holdTouches, 1);
+          yMin = minimizer(holdTouches, 1);
+          console.log("xMax: " + xMax);
+          console.log("xMin: " + xMin);
+          console.log("yMax: " + yMax);
+          console.log("yMin: " + yMin);
+
+
+          for (i = 0; i < holdTouches.length; i++) {
+            console.log(i +"th touch happened here: " + holdTouches[i].toString());
+            holdTouches[i][0] = (holdTouches[i][0] - xMin)/(xMax - xMin);
+            holdTouches[i][1] = (holdTouches[i][1] - yMin)/(yMax - yMin);
+
+          }
+          for (i = 0; i < holdTouches.length; i++) {
+            console.log("Normalized " + i +"th touch happened here: " + holdTouches[i].toString());     
+          }
+          holdTouches = [];
+        }
+        canvas = document.createElement("canvas");
+        canvas.height = rows;
+        canvas.width = cols;
+        ctx = canvas.getContext('2d');
+        pixels = ctx.createImageData(cols, rows);
+        for (i = 0; i < rows; i++) {
+          for (j = 0; j < cols; j++) {
+            v = img[i][j];
+            color = Math.round((v - min)/(max-min) * 255);
+            pixels.data[(i*cols + j)*4] = color;
+            pixels.data[(i*cols + j)*4+1] = color;
+            pixels.data[(i*cols + j)*4+2] = color;
+            pixels.data[(i*cols + j)*4+3] = 255;
+          }
+        }
+        ctx.putImageData(pixels, 0, 0);
+        dispCanvas = document.getElementById("canvas");
+        dispCanvas.height = 10*rows;
+        dispCanvas.width = 10*cols;
+        dispCtx = dispCanvas.getContext("2d");
+        dispCtx.drawImage(ctx.canvas, 0, 0, cols, rows, 0, 0, dispCanvas.width, dispCanvas.height);
+      }
+
+      function requestUpdate() {
+        $.getJSON("sensorData", function(json) {
+          if (go) {
+            window.setTimeout(requestUpdate, 1);
+          }
+          if (Object.keys(json).length > 0) {
+            //$("#rawData").text(JSON.stringify(json, null, 2));
+            updateFrameRate(json["timeStamp"], json["sequence"]);
+            updateCanvas(json["image"], json["rows"], json["cols"]);
+          }
+        });
+      }
+
+      function stopImages() {
+        $("#button1").text("Start");
+        $("#button1").off("click");
+        $("#button1").click(startImages);
+        go = false;
+      }
+
+      function startImages() {
+        $("#button1").text("Stop");
+        $("#button1").off("click");
+        $("#button1").click(stopImages);
+        go = true;
+        requestUpdate();
+      }
+
+      $( document ).ready(function() {
+        $("#button1").click(startImages);
+        $("#rezero").click(function() {
+          rezero = true;
+        });
+      });
+    </script>
+    <h1>Synaptics Sensor Demo</h1>
+    <p id="framesPerSec">&nbsp;</p>
+    <p>
+      <button id="button1">Start</button>
+      <button id="rezero">Rezero</button>
+    </p>
+    <p id="rawData"></p>
+    <canvas id="canvas"></canvas>
+  </body>
+</html>
