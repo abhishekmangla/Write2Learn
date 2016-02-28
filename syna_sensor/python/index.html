@@ -1,7 +1,7 @@
 <html>
   <head>
     <title>Write 2 Learn, an educational project </title>
-    <link type="text/css" rel="stylesheet" href="index.css" /> 
+    <link type="text/css" rel="stylesheet" href="stylesheet.css" /> 
   </head>
   <body>
     <h1> Write 2 Learn </h1> 
@@ -223,6 +223,12 @@
           */
           var letter = categorize(finalTouchVector);
           console.log(letter);
+          $("#canvas").append(
+              "<audio id='foo' autoplay='autoplay' controls='controls'> <source src='audio-alphabet/"+letter+".wav' /> </audio>"
+              )
+              document.getElementById('foo').play();
+            var audio = new Audio('audio-alphabet/'+letter+'.wav');
+            audio.play();
           holdTouches = []; 
       }
 
