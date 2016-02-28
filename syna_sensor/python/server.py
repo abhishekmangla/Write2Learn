@@ -106,7 +106,7 @@ class SensorInterface(object):
 
         Use the optional id argument to specify a non-default sensor"""
         if id == None:
-            id = 1;
+            id = 0;
         try:
             self.sensor = FT.open(id)
         except FT.DeviceError:
@@ -267,7 +267,7 @@ class MyHttpHandler(httpServer.BaseHTTPRequestHandler):
         f.close()
 
     def do_GET(self):
-        files = ['index.html', 'jquery-1.11.3.js']
+        files = ['index.html', 'jquery-1.11.3.js','trainingData.json']
         if self.path == '/':
             self.path = '/index.html'
 
