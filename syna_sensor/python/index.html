@@ -5,6 +5,7 @@
   </head>
   <body>
     <h1> Write 2 Learn </h1> 
+    <div id = "graph"/>
     <script src="jquery-1.11.3.js"></script>
     <script>
       baseline = [];
@@ -219,7 +220,7 @@
           sum=add(sum,finalTouchVector);
           var avg=divideByC(sum,counter);
 //          console.log(avg.toString());
-          console.log(holdTouches); 
+          printGrid(holdTouches);
           var letter = categorize(finalTouchVector);
           console.log(letter);
           var audio = new Audio('audio-alphabet/'+letter+'.wav');
@@ -263,6 +264,16 @@
         });
       }
 
+      function printGrid(touchData) {
+            ret = "<svg width='100px' height='100px' version='1.1' xmlns='http://www.w3.org/2000/svg'>";
+            ret += "<path fill='transparent' stroke='black' d='M ";
+            ret += touchData[0][0] + " ";
+            ret += (100-touchData[0][1]);
+            for (var i = 1; i < touchData.length; i++)
+                ret += " L " + touchData[i][0] + " " + (100-touchData[i][1]); 
+            ret += "'/> </svg>"
+            $("#graph").html(ret); 
+      }
       function stopImages() {
         $("#button1").text("Start");
         $("#button1").off("click");

@@ -1,0 +1,40 @@
+<html>
+    <body> 
+    <svg width="100px" height="100px" version="1.1" xmlns="http://www.w3.org/2000/svg">
+        <path d="M 25 25 M 25 100 L 25 50 L 0 50 L 50 50 " fill="transparent" stroke="black"/> 
+    </svg>
+    <div id="graph"/>
+
+    <svg width="100px" height="100px" version="1.1" xmlns="http://www.w3.org/2000/svg">
+        <div id='syncGraph'/>
+    </svg>
+    <script src = "jquery-1.11.3.js"></script>
+    <script>
+        var main = function() {
+            var cleaned = [[10,20],[20,40],[50,60]];
+            printGrid(cleaned);
+        }
+
+        function printGrid(touchData) {
+            ret = "<svg width='10em' height='10em' version='1.1' xmlns='http://www.w3.org/2000/svg'>";
+            ret += "<path fill='transparent' stroke='black' d='M ";
+            ret += touchData[0][0] + " ";
+            ret += touchData[0][1];
+            for (var i = 1; i < touchData.length; i++)
+                ret += " L " + touchData[i][0] + " " + touchData[i][1]; 
+            ret += "'/> </svg>"
+            $("#graph").html(ret); 
+        }
+    
+        function printGridSync (touch) {
+            ret += "<path fill='transparent' stroke='black' d='M 0 0 ";
+            ret += " L " + touch[0] + " " + touch[1];
+            ret += "'/> </svg>"
+            $("#syncGraph").html(ret);
+        } 
+
+        $('document').ready(main);
+    </script>
+    </body>
+    
+</html>

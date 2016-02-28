@@ -1,5 +1,5 @@
 * {
-    font-size: 2em;
+    font-size: 1em;
     margin: auto;
     
 }
@@ -17,5 +17,9 @@ button {
 
 audio {
     display: hidden;
+}
+
+path {
+    margin: 1em, 1em, 1em, 1em;
 }
 
