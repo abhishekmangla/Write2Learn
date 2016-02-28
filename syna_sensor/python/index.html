@@ -19,7 +19,8 @@
           trainingData=response;
       });
       var holdTouches = [];
-      var sum=Array.apply(null, Array(100)).map(Number.prototype.valueOf,0);
+      var LENGTH_OF_VECTOR=10;
+      var sum=Array.apply(null, Array(LENGTH_OF_VECTOR*LENGTH_OF_VECTOR)).map(Number.prototype.valueOf,0);
       var counter=0;
       function updateFrameRate(ts, seq) {
         if (lastSequence < 0) {
@@ -60,7 +61,7 @@
         max = 0; min = 4095;
         threshold = 10;
         rowIndex = 0; columnIndex = 0;
-        arbitraryTouchConstant = 6;
+        arbitraryTouchConstant = 3;
         var touches = [];
         for (i = 0; i < rows; i++) {
           for (j = 0; j < cols; j++) {
@@ -98,7 +99,7 @@
             {
                 ret += array1[i]*array2[i];
             }
-            console.log("inner product " + ret);
+            //console.log("inner product " + ret);
             return -1*ret;
         }
 
@@ -187,15 +188,16 @@
           //console.log("yMin: " + yMin);
           for (i = 0; i < holdTouches.length; i++) {
             //console.log(i +"th touch happened here: " + holdTouches[i].toString());
-            holdTouches[i][0] = Math.floor(((holdTouches[i][0] - xMin)/(xMax - xMin))*10);
-            holdTouches[i][1] = Math.floor(((holdTouches[i][1] - yMin)/(yMax - yMin))*10);
+            holdTouches[i][0] = Math.floor(((holdTouches[i][0] - xMin)/(xMax - xMin))*LENGTH_OF_VECTOR);
+            holdTouches[i][1] = Math.floor(((holdTouches[i][1] - yMin)/(yMax - yMin))*LENGTH_OF_VECTOR);
           }
+          var len=LENGTH_OF_VECTOR
           for(i=0; i <holdTouches.length; i++){
-              if(holdTouches[i][0]==10){
-                  holdTouches[i][0]=9;
+              if(holdTouches[i][0]==len){
+                  holdTouches[i][0]=len-1;
               }
-              if(holdTouches[i][1]==10){
-                  holdTouches[i][1]=9;
+              if(holdTouches[i][1]==len){
+                  holdTouches[i][1]=len-1;
               }
               if(holdTouches[i][0]==-1){
                   holdTouches[i][0]=0;
@@ -207,9 +209,9 @@
           for (i = 0; i < holdTouches.length; i++) {
               console.log("Normalized " + i +"th touch happened here: " + holdTouches[i].toString());
           }
-          var finalTouchVector=Array.apply(null, Array(100)).map(Number.prototype.valueOf,0);
+          var finalTouchVector=Array.apply(null, Array(LENGTH_OF_VECTOR*LENGTH_OF_VECTOR)).map(Number.prototype.valueOf,0);
           for(i=0;i<holdTouches.length;i++){
-              var index = 10*holdTouches[i][0]+holdTouches[i][1];
+              var index = LENGTH_OF_VECTOR*holdTouches[i][0]+holdTouches[i][1];
               finalTouchVector[index]=1;
               console.log(index);
           }
