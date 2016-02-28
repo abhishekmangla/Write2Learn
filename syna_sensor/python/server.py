@@ -245,9 +245,6 @@ class MyHttpHandler(httpServer.BaseHTTPRequestHandler):
                 self.writeStr(",")
         self.writeStr("}")
 
-    def writeStr(self, s):
-        self.wfile.write(s.encode("utf-8"))
-
     def send_sensorData(self):
         global sensor
         self.send_response(200)
@@ -261,18 +258,12 @@ class MyHttpHandler(httpServer.BaseHTTPRequestHandler):
             self.writeStr("{}")
     
     def send_file(self, file):
-        f = open(file)
+        f = open(file, 'rb')
         self.send_response(200)
         self.send_header("Content-type", "text/html")
         self.end_headers()
-        print(file)
         fileSplit=str(f).split('.')
-        print(repr(fileSplit[len(fileSplit)-1][:3]))
-        if repr(fileSplit[len(fileSplit)-1][:3]) == "'wav'":
-            #TODO: Read/Write audio file
-        else:
-            for line in f: 
-                self.writeStr(line)
+        self.wfile.write(f.read())
         f.close()
 
     def ste_to_mono(hex1, hex2):

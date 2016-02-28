@@ -219,15 +219,10 @@
           var avg=divideByC(sum,counter);
           console.log(avg.toString());
           */
-          console.log(categorize(finalTouchVector));
           var letter = categorize(finalTouchVector);
           console.log(letter);
-          $("#canvas").append(
-              "<audio id='foo' autoplay='autoplay' controls='controls'> <source src='audio-alphabet/"+letter+".wav' /> </audio>"
-              )
-              document.getElementById('foo').play();
-            var audio = new Audio('audio-alphabet/'+letter+'.wav');
-            audio.play();
+          var audio = new Audio('audio-alphabet/'+letter+'.wav');
+          audio.play();
           holdTouches = []; 
       }
 
