@@ -106,7 +106,7 @@ class SensorInterface(object):
 
         Use the optional id argument to specify a non-default sensor"""
         if id == None:
-            id = 0;
+            id = 1;
         try:
             self.sensor = FT.open(id)
         except FT.DeviceError:
