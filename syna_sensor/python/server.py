@@ -44,9 +44,12 @@
 
 from __future__ import print_function
 
+from urllib.request import urlretrieve
+import webbrowser
 import ftd2xx as FT
 
 import sys
+import wave
 
 try:
     import BaseHTTPServer as httpServer
@@ -106,7 +109,7 @@ class SensorInterface(object):
 
         Use the optional id argument to specify a non-default sensor"""
         if id == None:
-            id = 1;
+            id = 0;
         try:
             self.sensor = FT.open(id)
         except FT.DeviceError:
@@ -256,21 +259,34 @@ class MyHttpHandler(httpServer.BaseHTTPRequestHandler):
         else:
             print("Warning: no image available")
             self.writeStr("{}")
-
+    
     def send_file(self, file):
         f = open(file)
         self.send_response(200)
         self.send_header("Content-type", "text/html")
         self.end_headers()
-        for line in f:
-            self.writeStr(line)
+        print(file)
+        fileSplit=str(f).split('.')
+        print(repr(fileSplit[len(fileSplit)-1][:3]))
+        if repr(fileSplit[len(fileSplit)-1][:3]) == "'wav'":
+            #TODO: Read/Write audio file
+        else:
+            for line in f: 
+                self.writeStr(line)
         f.close()
 
+    def ste_to_mono(hex1, hex2):
+        return hex((ord(hex1)+ord(hex2))/2)
+
     def do_GET(self):
-        files = ['index.html', 'jquery-1.11.3.js','trainingData.json']
+
+        files = ['index.html', 'jquery-1.11.3.js','trainingData.json','stylesheet.css']
+        audioFiles = []
+        for i in range(26):
+            audioFiles.append('audio-alphabet/' +chr(65+i)+'.wav')
+        files.extend(audioFiles)
         if self.path == '/':
             self.path = '/index.html'
-
         if self.path == '/sensorData':
             self.send_sensorData()
         elif self.path[1:] in files:
