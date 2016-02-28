@@ -5,7 +5,8 @@
   </head>
   <body>
     <h1> Write 2 Learn </h1> 
-    <div id = "graph"/>
+    <div id = "graph"></div>
+    <div id= "currLetter"></div>
     <script src="jquery-1.11.3.js"></script>
     <script>
       baseline = [];
@@ -14,7 +15,7 @@
       frameCount = -1;
       lastSequence = -1;
       lastTs = -1;
-      var LENGTH=100;
+      var LENGTH=25;
       var trainingData;
       $.getJSON('trainingData.json',function(response){
           console.log(response);
@@ -109,26 +110,31 @@
             return sum;
         }
         function getRadiusCounter(array1,array2){
-            var n = array1.length;
-            var ret = 0.0;
-            var radius = 5;
+            var radius=2;
+            var sum=0;
+            var penalityCounter = 0;
             var normal = norm(array1);
-            for (var i = 0; i < n; i++) {
-                for (var step =-1*radius; step < radius; step ++) {
-                    if (i+step < 0 || i + step >= n)
+            for(i=0;i<array1.length;i++){
+                penalityCounter = 0;
+                for(j=-1*radius;j<radius;j++){
+                for(k=-1*radius;k<radius;k++)
+                {
+                    if(i+j < 0 || i+j*LENGTH+k >=array2.length){
                         continue;
-                    if(array2[i]==0){
-                        ret -= 0.1;
                     }
-                    else if(array2[i]< 0.015){
-                        ret -= 0.0005;
+                    if(array1[i]>=0.2 && array2[i+j*LENGTH+k]==1){
+                        sum+=array1[i]/normal;
                     }
-                    else{
-                        ret += array2[i] * array1[i+step]/normal;
+                    else {
+                        penalityCounter++;
+                    }
+                    if (penalityCounter == radius*radius*4){
+                        sum -= array1[i]/normal;
                     }
                 }
             }
-            return -1*ret;
+            }
+            return -1*sum;
         }
 
         
@@ -146,7 +152,7 @@
         }
 
         function categorize (newTouch) {
-            var threshold = 2;
+            var threshold = 0.001;
             var minDistance = 10000;
             var letter = null;
             for (var letterKey in trainingData) {
@@ -259,15 +265,17 @@
           }
           
           counter++;
-          //sum=add(sum,finalTouchVector);
-          //var avg=divideByC(sum,counter);
-          //console.log(finalTouchVector.toString());
+          sum=add(sum,finalTouchVector);
+          var avg=divideByC(sum,counter);
+          console.log(avg.toString());
           printGrid(holdTouches);
           var letter = categorize(finalTouchVector);
           console.log(letter);
           var audio = new Audio('audio-alphabet/'+letter+'.wav');
           audio.play();   
-          holdTouches = []; 
+          holdTouches = [];
+          $("#currLetter").html('<p>'+letter+'</p>');
+
       }
 
         canvas = document.createElement("canvas");
