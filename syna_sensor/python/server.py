@@ -197,7 +197,6 @@ class SensorInterface(object):
 
             # accept the packet, remove it from buffer
             self.buffer[0:length] = []
-            print("Accepting packet, %d bytes long" % length)
             return packet
 
     def removeEscapedFFs(self, packet):
@@ -208,7 +207,6 @@ class SensorInterface(object):
             if packet[i] != 0xFF or packet[i+1] != 0xFF or packet[i+2] != 0xFF or packet[i+3] != 0xFF:
                 i += 1
                 continue
-            print(packet[i+4])
             if packet[i+4] != 0:
                 print("Warning, saw incorrect escape in FF sequence: %d" % packet[i+4])
             del packet[i+4]
@@ -223,7 +221,6 @@ class SensorInterface(object):
         while rx == 65536:
             (rx, tx, stat) = self.sensor.getStatus()
             buf = self.sensor.read(rx)
-            print("Read %d bytes" % len(buf))
             if rx == 65536:
                 print("Discarding buffer...")
 
@@ -245,6 +242,9 @@ class MyHttpHandler(httpServer.BaseHTTPRequestHandler):
                 self.writeStr(",")
         self.writeStr("}")
 
+    def writeStr(self, s):
+        self.wfile.write(s.encode("utf-8"))
+
     def send_sensorData(self):
         global sensor
         self.send_response(200)
@@ -258,11 +258,10 @@ class MyHttpHandler(httpServer.BaseHTTPRequestHandler):
             self.writeStr("{}")
     
     def send_file(self, file):
-        f = open(file, 'rb')
+        f = open(file,"rb")
         self.send_response(200)
         self.send_header("Content-type", "text/html")
         self.end_headers()
-        fileSplit=str(f).split('.')
         self.wfile.write(f.read())
         f.close()
 
