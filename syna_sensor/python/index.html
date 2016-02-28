@@ -13,7 +13,7 @@
       frameCount = -1;
       lastSequence = -1;
       lastTs = -1;
-      var LENGTH=10;
+      var LENGTH=100;
       var trainingData;
       $.getJSON('trainingData.json',function(response){
           console.log(response);
@@ -61,7 +61,7 @@
         max = 0; min = 4095;
         threshold = 10;
         rowIndex = 0; columnIndex = 0;
-        arbitraryTouchConstant = 4;
+        arbitraryTouchConstant = 2;
         var touches = [];
         for (i = 0; i < rows; i++) {
           for (j = 0; j < cols; j++) {
@@ -214,16 +214,16 @@
               finalTouchVector[index]=1;
               console.log(index);
           }
-          /*
+          
           counter++;
           sum=add(sum,finalTouchVector);
           var avg=divideByC(sum,counter);
-          console.log(avg.toString());
-          */
+//          console.log(avg.toString());
+          console.log(holdTouches); 
           var letter = categorize(finalTouchVector);
           console.log(letter);
           var audio = new Audio('audio-alphabet/'+letter+'.wav');
-          audio.play();
+          audio.play();   
           holdTouches = []; 
       }
 
