@@ -1,0 +1,25 @@
+* {
+    font-size: 1em;
+    margin: auto;
+    
+}
+
+button {
+    background-color: #4CAF50; /* Green */
+    border: none;
+    color: white;
+    padding: 15px 32px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+}
+
+audio {
+    display: hidden;
+}
+
+svg {
+    margin: 1em, 1em, 1em, 1em;
+}
+
