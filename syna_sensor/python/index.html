@@ -274,7 +274,7 @@
           var audio = new Audio('audio-alphabet/'+letter+'.wav');
           audio.play();   
           holdTouches = [];
-          $("#currLetter").html('<p>'+letter+'</p>');
+          $("#currLetter").html('<h2>'+letter+'</h2>');
 
       }
 
@@ -315,7 +315,7 @@
       }
 
       function printGrid(touchData) {
-            ret = "<svg width='100px' height='100px' version='1.1' xmlns='http://www.w3.org/2000/svg'>";
+            ret = "<svg width='200px' height='200px' version='1.1' xmlns='http://www.w3.org/2000/svg'>";
             ret += "<path fill='transparent' stroke='black' d='M ";
             ret += touchData[0][0] + " ";
             ret += (100-touchData[0][1]);
